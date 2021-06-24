@@ -292,3 +292,51 @@ CMD ["node", "server.js"]
     rm          Remove one or more volumes
     '
 ```
+# .dockerignore
+A **.dockerignore** file in concept is similar to a **.gitignore** file. We can mention any files and folders that we would want to ignore while **COPY** command in our **Dockerfile** gets executed
+
+# Environment Variable
+Sample Dockerfile
+```bash
+FROM node:14
+WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+# setting a default port number which we can change in run command
+ENV PORT 80
+EXPOSE $PORT
+CMD [ "npm", "start" ]
+```
+In order to use environment variable, we use run command as below
+```bash
+docker run -p 3000:8000 --env PORT=8000
+# or
+docker run -p 3000:8000 -e PORT=8000
+```
+Using a .env file. Sample .env file below
+```bash
+# .env file
+PORT=8000
+
+# run command in this case
+docker run -p 3000:8000 --env-file <path-to-env-file>
+```
+
+# Arguments
+Sample Dockerfile
+```bash
+FROM node:14
+WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+ARG DEFAULT_PORT=80
+ENV PORT $DEFAULT_PORT
+EXPOSE $PORT
+CMD [ "npm", "start" ]
+```
+In order to use arguments, we use build command as below
+```bash
+docker build -t <image-tag> --build-arg DEFAULT_PORT=8000 .
+```
