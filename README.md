@@ -1,5 +1,5 @@
 # DOCKER 
-A quick guide on docker
+A quick guide on Docker
 
 # Check installed version
 ```bash
@@ -205,3 +205,90 @@ CMD ["node", "server.js"]
     docker image inspect <image-id>
     docker image history <image-id>
     ```
+14. **cp**
+    ```bash
+    # copy files to container
+    docker container cp <src-path> <container-name:dest-path>
+
+    # copy files from container
+    docker container cp <container-name:dest-path> <src-path>    
+    ```
+15. **naming/re-naming container** & **tagging images**
+    ```bash
+    # naming a container
+    docker run --name <some-name> <image-id>/<image-tag>
+
+    # re-naming a container
+    docker container rename <old-name> <new-name>
+
+    # tagging image
+    docker build -t <name:tag> .
+    
+    # using image manager
+    docker image tag <old-image-tag> <new-image-tag>
+    ```
+# PUSH & PULL
+
+* **PUSH :** We can push our images to Docker Hub or other repos using _push_ command
+    * **Steps :**
+        1. Login to docker hub from console
+            ```bash
+            docker login
+            Username: <enter-username>
+            Password: <enter-password>
+            ```
+        2. Login to docker hub from browser and create a repo
+        3. In your terminal, tag your image with the name of your repo
+        4. Enter in your console
+            ```bash
+            docker push <image-tag>
+            ```
+* **PULL :** We can pull our images from Docker Hub or official images from Docker Hub using _pull_ command
+    * **Steps :**
+       1. Enter in your console
+            ```bash
+            docker pull <image-tag>/<repo-name>
+            ```
+# VOLUMES
+
+### Types:
+1. **Anonymous Volumes :** Gets deleted as soon as container is deleted
+    ```bash
+    # via Dockerfile
+    FROM node
+    WORKDIR /app
+    COPY . /app
+    RUN npm install
+    EXPOSE 80
+    # below specify the path of directory for which you need a volume
+    VOLUME ["/app/feedback"]
+    CMD ["node", "server.js"]
+
+    # via run command
+    docker run -p 3000:80 -d --rm -v <target-dir-path> <image-tag> 
+    ```
+2. **Named Volume :** Persist even after a container is deleted. We need to manually remove a volume
+    ```bash
+    # when runnig container, specify the named volume
+    docker run -p 3000:80 -d --rm -v <volume-name>:<target-dir-path> <image-tag>
+    ```
+3. **Binded Mounts/Volume :**
+    ```bash
+    # when runnig container, specify the volume
+    docker run -p 3000:80 -d --rm -v <host-path>:<target-dir-path> <image-tag>
+    ```
+### Managing Volume:
+```bash
+    docker volume --help
+
+    :'
+    Usage:  docker volume COMMAND
+
+    Commands:
+    create      Create a volume
+    inspect     Display detailed information on one or more volumes
+    ls          List volumes
+    prune       Remove all unused local volumes
+    rm          Remove one or more volumes
+    '
+```
