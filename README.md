@@ -16,6 +16,19 @@ docker --help
 docker <command> --help
 ```
 
+# Docker First Level Commands
+
+By **first level commands**, i mean commands in Docker (which are written like: "`docker <cmd>`") via which we can create and maintain docker related resources like images, containers, volumes, network etc.  
+
+```bash
+docker build
+docker run
+docker image
+docker container
+docker volume
+docker network
+```
+
 
 # Basic Steps
 
@@ -101,14 +114,20 @@ CMD ["node", "server.js"]
 3. **To see all images and containers** --> 
     > There is better way to do the below activities using the image & container management commands. Check point **12**
     ```bash
-    # list running images
+    # list images
     docker images
+    docker image ls
+    # show all images including intermediate images
+    docker image ls -a
+
 
     # list running containers
     docker ps
+    docker container ls
 
     # list all containers
     docker ps -a
+    docker container ls -a
     ```
 4. **stop**
     ```bash
@@ -124,17 +143,22 @@ CMD ["node", "server.js"]
     ```bash
     # remove a single container
     docker rm <container-name>
+    docker container rm <container-name>
 
     # remove multiple containers
     docker rm <container-name-1> <container-name-2> ... <container-name-n>
+    docker container rm <container-name-1> <container-name-2> ... <container-name-n>
     
     # remove a single image
-    docker rmi <image-id>
+    docker rmi <image-id>/<image-tag>
+    docker image rm <image-id>/<image-tag>
 
     # remove multiple images
     docker rmi <image-id-1> <image-id-2> ... <image-id-n>
+    docker image rm <image-id-1> <image-id-2> ... <image-id-n>
 
-    # remove container after it has been stopped
+
+    # remove container after it has been stopped (--rm)
     docker run -p 3000:80 --rm <image-id>
     ```
 
@@ -264,7 +288,7 @@ CMD ["node", "server.js"]
     VOLUME ["/app/feedback"]
     CMD ["node", "server.js"]
 
-    # via run command
+    # or via run command
     docker run -p 3000:80 -d --rm -v <target-dir-path> <image-tag> 
     ```
 2. **Named Volume :** Persist even after a container is deleted. We need to manually remove a volume
@@ -272,10 +296,17 @@ CMD ["node", "server.js"]
     # when runnig container, specify the named volume
     docker run -p 3000:80 -d --rm -v <volume-name>:<target-dir-path> <image-tag>
     ```
-3. **Binded Mounts/Volume :**
+3. **Bind Mounts/Volume :**
     ```bash
     # when runnig container, specify the volume
     docker run -p 3000:80 -d --rm -v <host-path>:<target-dir-path> <image-tag>
+    ```
+4. **Setting Permission on Volumes**\
+    By default, volumes have read + write permission i.e. they can read aswell as write data on the host machine
+
+    ```bash
+    # we can change the volume from default read + write mode to only readonly by writing :ro after volume declaration
+    docker run -p 3000:80 -d --rm -v <host-path>:<target-dir-path>:ro <image-tag>
     ```
 ### Managing Volume:
 ```bash
@@ -295,6 +326,12 @@ CMD ["node", "server.js"]
 # .dockerignore
 A **.dockerignore** file in concept is similar to a **.gitignore** file. We can mention any files and folders that we would want to ignore while **COPY** command in our **Dockerfile** gets executed
 
+Sample .dockerignore
+```bash
+Dockerfile  # to ignore Dockerfile while copying
+.git        # to ignore .git directory while copying
+```
+
 # Environment Variable
 Sample Dockerfile
 ```bash
@@ -308,7 +345,7 @@ ENV PORT 80
 EXPOSE $PORT
 CMD [ "npm", "start" ]
 ```
-In order to use environment variable, we use run command as below
+In order to use environment variable, we use **`run`** command as below
 ```bash
 docker run -p 3000:8000 --env PORT=8000
 # or
@@ -336,7 +373,38 @@ ENV PORT $DEFAULT_PORT
 EXPOSE $PORT
 CMD [ "npm", "start" ]
 ```
-In order to use arguments, we use build command as below
+In order to use arguments, we use **`build`** command as below
 ```bash
 docker build -t <image-tag> --build-arg DEFAULT_PORT=8000 .
 ```
+# Network
+1. Outbound HTTP request from a docker container happens by default.
+2. For communication with services running on localhost, we need to use **`host.docker.internal`** in place of **`localhost`**
+3. For cross container communication:
+    * We can hard code the ip of the container to which we want to communicate. To get the ip, we can run **`docker container inspect <cotainer-name>`** and check the IP field.
+    * Another way is to create a **docker network** using **`docker network create <network-name>`** and put every container in the same network by running the run command like **`docker run --network/--net <network-name> <image-tag>`**
+        ```bash
+        docker network --help
+
+        :'
+        Usage:  docker network COMMAND
+
+        Commands:
+        connect     Connect a container to a network
+        create      Create a network
+        disconnect  Disconnect a container from a network
+        inspect     Display detailed information on one or more networks
+        ls          List networks
+        prune       Remove all unused networks
+        rm          Remove one or more networks
+        '
+        ```
+4. **Network Drivers**
+    * **`bridge`** (default)
+    * **`host`**  (use host machine networking)
+    * **`overlay`** (multi-host communication)
+    * **`macvlan`** (allows assigning mac-address to a container)
+    * **`none`**  (no networking)
+    * **`Network plugins`** (third-party plugin)
+
+    Refer to [Docker Networks](https://docs.docker.com/network/) to learn more on drivers.
