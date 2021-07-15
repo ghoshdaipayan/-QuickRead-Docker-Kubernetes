@@ -383,6 +383,7 @@ docker build -t <image-tag> --build-arg DEFAULT_PORT=8000 .
 3. For cross container communication:
     * We can hard code the ip of the container to which we want to communicate. To get the ip, we can run **`docker container inspect <cotainer-name>`** and check the IP field.
     * Another way is to create a **docker network** using **`docker network create <network-name>`** and put every container in the same network by running the run command like **`docker run --network/--net <network-name> <image-tag>`**
+    
         ```bash
         docker network --help
 
@@ -407,4 +408,4 @@ docker build -t <image-tag> --build-arg DEFAULT_PORT=8000 .
     * **`none`**  (no networking)
     * **`Network plugins`** (third-party plugin)
 
-    Refer to [Docker Networks](https://docs.docker.com/network/) to learn more on drivers.
+    > Refer to [Docker Networks](https://docs.docker.com/network/) to learn more on drivers.
