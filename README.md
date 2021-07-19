@@ -79,7 +79,7 @@ docker pull python
 
 # Writing a simple Dockerfile
 
-```bash
+```dockerfile
 # layer 1 --> pull dependent image
 FROM node
 # layer 2 --> declare a working directory
