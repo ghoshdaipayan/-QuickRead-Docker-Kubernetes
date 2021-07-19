@@ -277,7 +277,7 @@ CMD ["node", "server.js"]
 
 ### Types:
 1. **Anonymous Volumes :** Gets deleted as soon as container is deleted
-    ```bash
+    ```dockerfile
     # via Dockerfile
     FROM node
     WORKDIR /app
@@ -287,7 +287,8 @@ CMD ["node", "server.js"]
     # below specify the path of directory for which you need a volume
     VOLUME ["/app/feedback"]
     CMD ["node", "server.js"]
-
+    ```
+    ```bash
     # or via run command
     docker run -p 3000:80 -d --rm -v <target-dir-path> <image-tag> 
     ```
