@@ -334,7 +334,7 @@ Dockerfile  # to ignore Dockerfile while copying
 
 # Environment Variable
 Sample Dockerfile
-```bash
+```dockerfile
 FROM node:14
 WORKDIR /app
 COPY package.json .
@@ -362,7 +362,7 @@ docker run -p 3000:8000 --env-file <path-to-env-file>
 
 # Arguments
 Sample Dockerfile
-```bash
+```dockerfile
 FROM node:14
 WORKDIR /app
 COPY package.json .
@@ -409,3 +409,157 @@ docker build -t <image-tag> --build-arg DEFAULT_PORT=8000 .
     * **`Network plugins`** (third-party plugin)
 
     > Refer to [Docker Networks](https://docs.docker.com/network/) to learn more on drivers.
+
+# Docker Compose
+
+A convinient way to configure your docker containers (services) running on the **same host**
+
+1. Sample `docker-compose.yml` **(when image is already available)**
+    ```yaml
+    version: "3.8"                              # docker compose specification version
+    services:
+        node_app:                               # name of service/container
+            build: .\backend
+            #---------- or ----------
+            build:
+                context: .\backend
+                dockerfile: Dockerfile_dev
+                args:
+                    - arg1=somevalue
+                    - arg2=somevalue
+                    #---------- or ----------
+                    arg1: somevalue
+                    arg2: somevalue
+            #---------- or ----------
+            image: "node"                       # name of image available in host machine or in docker-hub
+            volumes:
+                - log:/app/log                  # named volume
+                - .\backend:/app                # bind mount
+                - /app/node_modules             # anonymous volume
+            environment:                        # environment variable (direct-entry)
+                - MONGODB_USERNAME=max_1
+                - MONGODB_PASSWORD=secret_1
+                #---------- or ----------
+                MONGODB_USERNAME: max_2
+                MONGODB_PASSWORD: secret_2
+            env-file:                           # environment variable (via .env file)
+                - .\env\node.env
+            ports:                              # published ports
+                - "3000:80"
+            stdin_open: true
+            tty: true
+    volumes:                                    # need to list all "named volumes" here
+        log:
+    ```
+2. Sample `docker-compose.yml` **(for a multi-container project)**
+    ```yaml
+    version: "3.8"
+    services: 
+        mongodb:
+            image: "mongo"
+            volumes: 
+                - data:/data/db
+            env_file: 
+                - .\env\mongo.env
+
+        node_11:
+            build: .\backend
+            volumes: 
+                - logs:/app/logs
+                - .\backend:/app
+                - /app/node_modules
+            env_file: 
+                - .\env\node.env
+            ports: 
+                - "80:80"
+            depends_on: 
+                - mongodb
+
+        react_11:
+            build: .\frontend
+            volumes: 
+                - .\frontend\src:/app/src
+            ports: 
+                - "3000:3000"
+            stdin_open: true
+            tty: true
+            depends_on: 
+                - node_11
+
+
+    volumes: 
+        data:
+        logs:
+    ```
+
+# CMD v/s ENTRYPOINT
+1. **CMD**
+    > Sample Dockerfile
+    ```dockerfile
+    FROM ubuntu:16.04
+    CMD [ "echo", "Hello World" ]
+    ```
+    > If we run a container on the image based in this docker file, the output will be as follows:
+    ```bash
+    docker build -t sample .
+    docker run -it sample
+    ```
+    **`>> Hello World`**
+
+    > We can override the CMD at runtime as follows:
+    ```bash
+    docker build -t sample .
+    docker run -it sample echo "Hello Universe"
+    ```
+    **`>> Hello Universe`**
+
+2. **Entrypoint**
+    > Sample Dockerfile
+    ```dockerfile
+    FROM ubuntu:16.04
+    ENTRYPOINT [ "echo", "Hello World" ]
+    ```
+    > Entrypoint instruction is the first command that will be executed when a container is executed. See the below output: 
+
+    ```bash
+    docker build -t sample .
+    docker run -it sample
+    ```
+    **`>> Hello World`**
+    > We can not override the entrypoint command. If we try to override by providing a command in `docker run` command, it will be appended to the entrypoint command. See below:
+
+    ```bash
+    docker build -t sample .
+    docker run -it sample echo "Hello Universe"
+    ```
+    **`>> Hello World echo Hello Universe`**
+    
+3. **CMD with ENTRYPOINT**
+    > Sample Dockerfile
+    ```dockerfile
+    FROM ubuntu:16.04
+    ENTRYPOINT [ "echo" ]
+    CMD [ "Hello World" ]
+    ```
+    > CMD now become default argument to ENTRYPOINT command. If we run a container on the image based in this docker file, the output will be as follows:
+    ```bash
+    docker build -t sample .
+    docker run -it sample
+    ```
+    **`>> Hello World`**
+
+    > We can now override the default CMD in our `docker run` command. See below:
+    ```bash
+    docker build -t sample .
+    docker run -it sample Hello Universe
+    ```
+    **`>> Hello Universe`**    
+
+
+
+# Entry point, docker exec, docker-compose run
+`docker exec <container-name> <command>`\
+`docker run <container-name> <command>`
+
+
+# docker-compose run
