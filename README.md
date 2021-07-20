@@ -492,6 +492,23 @@ A convinient way to configure your docker containers (services) running on the *
         data:
         logs:
     ```
+3. To run docker-compose
+    ```bash
+    docker-compose -d up            # starts all servicess
+    ```
+    ```bash
+    docker-compose -d up <service-1> <service-2> # can start specific service when the service name is mentioned
+    ```
+    ```bash
+    docker-compose -d --build up    # --build flag to force docker-compose to always build before startinig container
+    ```
+    ```bash
+    docker-compose down
+    ```
+    ```bash
+    docker-compose run --rm -it <service-name> <command> <arg-1> .. <arg-n>
+    docker-compose exec --rm -it <service-name> <command> <arg-1> .. <arg-n>
+    ```
 
 # CMD v/s ENTRYPOINT
 1. **CMD**
@@ -556,11 +573,16 @@ A convinient way to configure your docker containers (services) running on the *
     ```
     **`>> Hello Universe`**    
 
+# docker exec, docker run
 
+* **docker run :** To start a container. Additionally we can override the default CMD from dockerfile by providing our own command at the end of `docker run` command
+    > E.g. **`docker run <image-tag> <command>`**
+* **docker exec :** To run a command on a container which is already running
+    > E.g. **`docker exec <container-name> <command>`**
 
-# Entry point, docker exec, docker-compose run
-`docker exec <container-name> <command>`\
-`docker run <container-name> <command>`
+# docker-compose run & docker-compose exec
 
-
-# docker-compose run
+* **docker-compose run :** To run a command on a service
+    > E.g. **`docker-compose run <service-name> <command>`**
+* **docker-compose exec :** To run a command on a container which is already running
+    > E.g. **`docker-compose exec <service-name> <command>`**
