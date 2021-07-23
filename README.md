@@ -437,6 +437,8 @@ A convinient way to configure your docker containers (services) running on the *
                 - log:/app/log                  # named volume
                 - .\backend:/app                # bind mount
                 - /app/node_modules             # anonymous volume
+            entrypoint: [ "npm" ]               # entrypoint command for this service
+            working_dir: /app                   # working directory for this service
             environment:                        # environment variable (direct-entry)
                 - MONGODB_USERNAME=max_1
                 - MONGODB_PASSWORD=secret_1
@@ -586,3 +588,37 @@ A convinient way to configure your docker containers (services) running on the *
     > E.g. **`docker-compose run <service-name> <command>`**
 * **docker-compose exec :** To run a command on a container which is already running
     > E.g. **`docker-compose exec <service-name> <command>`**
+
+# Deploying Docker Image on AWS-EC2 (Manual Deployment)
+
+1. Start an EC2 (Elastic Compute Cloud) instance
+2. Connect to your EC2 instance via SSH
+3. Run `sudo yum update -y` to update your EC2 instance
+4. Run `sudo amazon-linux-extras install docker`, to install Docker on EC2 instance
+5. Run `sudo service docker start`, to start Docker service on your EC2 instance
+6. Push your docker image from local machine to docker hub
+7. Pull your image from docker hub to EC2 instance
+8. Start your container using `sudo` command prepended with docker command
+9. Edit your security group for your running EC2 instance and add an new inbound rule
+10. Allow all ipv4 HTTP request
+11. Use the public ipv4 address to access your app from browser
+
+# Deploying Docker Image on AWS-ECS (Managed Service)
+
+* ECS (Elastic Container Service) is composed of the below 4 items
+> **Container** >> **Task** (Host -> EC2) >> **Service** >> **Cluster**
+
+* Configuring ECS is big topic. Refer AWS doc for it
+
+# KUBERNETES
+
+* Kubernetes is a tool and a set of guideline used for deploying container in the cloud.
+* Kubernetes architechture is made up of the following components:
+    1. **POD** : A pod can contain one or more **container**
+    2. **PROXY** : A proxy is an entity which handles the network traffic for a node
+    3. **WORKER NODE** : A worker node contains one or more **pod** and **proxy**. It is the host machine in which a pod runs.E.g. EC2 instance
+    4. **MASTER NODE** : A master node is also called a **control plane** and this is reponsible for controlling the worker node
+
+* Below is the architechture diagram:
+
+    ![Markdown Logo](Kubernetes_Architechture.png)
